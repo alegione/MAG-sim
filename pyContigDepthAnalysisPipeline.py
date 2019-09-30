@@ -148,7 +148,7 @@ def generate_simplied_fasta(input_folder, genome_folder):
         header = os.path.splitext(file)[0]
         file = input_folder + '/' + file
         output_file = genome_folder + '/' + file
-        with open(file) as file, open(output_file, 'w') as output_file
+        with open(file) as file, open(output_file, 'w') as output_file:
             for seq_record in SeqIO.parse(file, "fasta"):
                 seq_record.id = header
                 seq_record.description = header
