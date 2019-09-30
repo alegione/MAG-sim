@@ -1,0 +1,8 @@
+# Dependencies, with versions explicitly declared for development and testing
+pandas==0.25.1
+numpy==1.17.2
+Bio==1.74
+
+
+# Packages that are not dependencies but used for building or testing
+pylint
