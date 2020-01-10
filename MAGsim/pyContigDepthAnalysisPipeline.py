@@ -257,13 +257,14 @@ def merge_reads(output_folder, input_R1, input_R2):
     return None
 
 def meta_assembly(output_folder, threads, input_R1, input_R2):
-    subprocess.run("megahit --num-cpu-threads " + str(threads) + " -1 " + input_R1 + " -2 " + input_R2 + " --out-dir megahit --out-prefix MetaAssemble --tmp-dir /tmp ",
+    subprocess.run("megahit --num-cpu-threads " + str(threads) + " -1 " + input_R1 + " -2 " + input_R2 + " --out-dir output_folder --out-prefix MetaAssemble --tmp-dir /tmp ",
             shell = True)
 
     return None
 
 def map_minimap2(output_folder, output_file, threads, input_ref, input_R1, input_R2):
     print("Generating " + output_file)
+    output_folder
     print("minimap2 -t " + \
                     str(threads) + \
                     " -a -x sr " + \
@@ -367,44 +368,65 @@ def main():
         merge_reads(output_folder, Forward, Reverse)
 
     
-        
+       
     print("going to try assembly")
-    if os.path.isdir(output_folder + "/megahit") == True:
+    megahit_folder = output_folder + "/megahit"
+    megahit_out = megahit_folder + "/MetaAssemble.contigs.fa"
+    
+    if os.path.isdir(megahit_folder) == True:
         print("detected megahit folder already")
-        if os.path.isfile(output_folder + "/megahit/MetaAssemble.contigs.fa") == True:
+        if os.path.isfile(megahit_out) == True:
             print("detected megahit contig file, exiting assembly")
         else:
             print("couldn't detect contig file, probably failed assembly. Removing folder and start again")
-            shutil.rmtree(output_folder + "/megahit")
-            meta_assembly(output_folder, threads, Forward, Reverse)
+            shutil.rmtree(megahit_folder)
+            meta_assembly(megahit_folder, threads, Forward, Reverse)
     else:
-        meta_assembly(output_folder, threads, Forward, Reverse)
+        meta_assembly(megahit_folder, threads, Forward, Reverse)
 
+    aln_folder = output_folder + "/alignments"
+    if not os.path.exists(aln_folder):
+        print("Making output directory")
+        os.mkdir(aln_folder)
+    
+    
+    minimap2_out = aln_folder + "/MetaAssemble.minimap2.bam"
+    kallisto_out = aln_folder + "/MetaAssemble.kallisto.bam"
+    bwa_out = aln_folder + "/MetaAssemble.bwa.bam"
+    
+    if os.path.isfile(minimap2_out) == False:
+        map_minimap2(aln_folder, minimap2_out, threads, megahit_out, Forward, Reverse)
 
-    if os.path.isfile("alignments/MetaAssemble.minimap2.bam") == False:
-        map_minimap2(output_folder, "alignments/MetaAssemble.minimap2.bam", threads, "megahit/MetaAssemble.contigs.fa", Forward, Reverse)
+    if os.path.isfile(kallisto_out) == False:
+        map_kallisto(aln_folder, kallisto_out, threads, megahit_out, Forward, Reverse)
 
-    if os.path.isfile("alignments/MetaAssemble.kallisto.bam") == False:
-        map_kallisto(output_folder, "alignments/MetaAssemble.kallisto.bam", threads, "megahit/MetaAssemble.contigs.fa", Forward, Reverse)
+    if os.path.isfile(bwa_out) == False:
+        map_BWA(aln_folder, bwa_out, threads, megahit_out, Forward, Reverse)
 
-    if os.path.isfile("alignments/MetaAssemble.bwa.bam") == False:
-        map_BWA(output_folder, "alignments/MetaAssemble.bwa.bam", threads, "megahit/MetaAssemble.contigs.fa", Forward, Reverse)
-
-    for file in os.listdir("alignments"):
+    depth_folder = output_folder + "/depth"
+    if not os.path.exists(depth_folder):
+        print("Making output directory")
+        os.mkdir(depth_folder)
+    for file in os.listdir(aln_folder):
         if file.lower().endswith(".bam"):
             output_file = os.path.splitext(file)[0] + ".txt"
-            if os.path.isfile("depth/" + output_file) == False:
+            if os.path.isfile(depth_folder + "/" + output_file) == False:
                 print("contig coverage of " + file)
                 contig_coverage(file, output_file, output_folder)
+                
+                
+    binning_folder = output_folder + "/binning"
+    if not os.path.exists(binning_folder):
+        print("Making output directory")
+        os.mkdir(binning_folder)
+        
+    for file in os.listdir(depth_folder):
+        if os.path.isfile(binning_folder + "/" + os.path.splitext(file)[0] + ".1.fa") == False:
+            binning(megahit_out, file)
 
-    for file in os.listdir("depth"):
-        if os.path.isfile("binning/" + os.path.splitext(file)[0] + ".1.fa") == False:
-            binning("megahit/MetaAssemble.contigs.fa", file)
-
-    for file in os.listdir("binning"):
-        output_folder = "binning/"
-        if os.path.isfile(output_folder + os.path.splitext(file)[0] + ".bam") == False:
-            map_minimap2(output_folder, output_folder + os.path.splitext(file)[0] + ".bam", threads, output_folder + "/" + file, "Merged_R1.fastq", "Merged_R2.fastq")
+    for file in os.listdir(binning_folder):
+        if os.path.isfile(binning_folder + os.path.splitext(file)[0] + ".bam") == False:
+            map_minimap2(binning_folder, binning_folder + os.path.splitext(file)[0] + ".bam", threads, binning_folder + "/" + file, Forward, Reverse)
 
 #    remap_kallisto()
 
