@@ -219,7 +219,7 @@ def simulate_reads(genome_folder, read_depths, output_folder, read_length):
                             " -2 " + \
                             str(read_length) +\
                             " -S 999 " + \
-                            genome_folder \
+                            genome_folder + \
                             "/" + \
                             fasta_file + \
                             " " + \
