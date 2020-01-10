@@ -412,12 +412,12 @@ def main():
             output_file = os.path.splitext(file)[0] + ".txt"
             if os.path.isfile(depth_folder + "/" + output_file) == False:
                 print("contig coverage of " + file)
-                contig_coverage(file, output_file, output_folder, aln_folder)
+                contig_coverage(file, output_file, depth_folder, aln_folder)
                 
                 
     binning_folder = output_folder + "/binning"
     if not os.path.exists(binning_folder):
-        print("Making output directory")
+        print("Making binning output directory")
         os.mkdir(binning_folder)
         
     for file in os.listdir(depth_folder):
