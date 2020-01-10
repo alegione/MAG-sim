@@ -12,16 +12,16 @@ binning, in particular assessment of contig depth of coverage.
 
 
 setup(
-    name='MAG-sim',
+    name='MAGsim',
     version='0.1.0.0',
     author='Alistair Legione',
     author_email='legionea@unimelb.edu.au',
-    packages=['MAG-sim'],
-    package_dir={'MAG-sim': 'MAG-sim'},
+    packages=['MAGsim'],
+    package_dir={'MAGsim': 'MAGsim'},
     entry_points={
         'console_scripts': ['MAGsim = MAGsim.pyContigDepthAnalysisPipeline:main']
     },
-    url='https://github.com/alegione/MAG-sim',
+    url='https://github.com/alegione/MAGsim',
     license='MIT',
     description=('Simulation of metagenomic assemblies'),
     long_description=(LONG_DESCRIPTION),
