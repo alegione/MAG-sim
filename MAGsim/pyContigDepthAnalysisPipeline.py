@@ -311,7 +311,7 @@ def map_kallisto(output_folder, output_file, threads, input_ref, input_R1, input
 def map_BWA(output_file, threads, input_ref, input_R1, input_R2):
     subprocess.run("bwa index " + input_ref,
                     shell = True)
-    subprocess.run("bwa mem -t " + str(threads) + " " + input_ref + " " + input_R1 + " " + input_R2 + " | samtools view -@ " + str(threads) + " -F 4 -h -u -T " input_ref " - | samtools sort -@ " + str(threads) + " -T /tmp/temp.bwa.bam -o " + output_file + " -",
+    subprocess.run("bwa mem -t " + str(threads) + " " + input_ref + " " + input_R1 + " " + input_R2 + " | samtools view -@ " + str(threads) + " -F 4 -h -u -T " + input_ref + " - | samtools sort -@ " + str(threads) + " -T /tmp/temp.bwa.bam -o " + output_file + " -",
                  shell = True)
     return None
 
@@ -319,7 +319,7 @@ def contig_coverage(input_bam, output_file, output_folder, aln_folder):
     if os.path.isfile(output_folder + "/" + output_file) == False:
         print("generating " + output_file)
         subprocess.run("jgi_summarize_bam_contig_depths --minContigLength 2000 \
-            --outputDepth " output_folder + "/" + output_file + " " +  aln_folder + "/" + input_bam + " 2> /dev/null",
+            --outputDepth " + output_folder + "/" + output_file + " " +  aln_folder + "/" + input_bam + " 2> /dev/null",
             shell = True)
     return None
 
