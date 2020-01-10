@@ -160,7 +160,7 @@ def generate_simplied_fasta(input_folder, genome_folder):
                 seq_record.description = header
                 SeqIO.write(seq_record, output_file, fasta)
 
-        #Close fjle??
+        #Close file??
 
 
 def generate_read_depths(genome_folder, read_length, read_depths, output_folder):
@@ -345,10 +345,10 @@ def main():
 
     init_logging(options.log)
 
-    genome_folder = os.getcwd() + "/genomes"
-    read_length = 150
-    read_depths = os.getcwd() + "/read_depths.tsv"
-    output_folder = os.getcwd()
+    genome_folder = options.input
+    read_length = options.readlength
+    read_depths = options.outdir + "/" + options.prefix + '.' + read_depths.tsv"
+    output_folder = options.outdir
     threads = 8
 
     print("Generating read_depths")
