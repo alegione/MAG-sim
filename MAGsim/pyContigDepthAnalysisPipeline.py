@@ -25,17 +25,20 @@ import datetime
 import logging
 import pkg_resources
 
-try:
-    PROGRAM_VERSION = pkg_resources.require(PROGRAM_NAME)[0].version
-except pkg_resources.DistributionNotFound:
-    PROGRAM_VERSION = "undefined_version"
-
 EXIT_FILE_IO_ERROR = 1
 EXIT_COMMAND_LINE_ERROR = 2
 EXIT_FASTA_FILE_ERROR = 3
 EXIT_OUTDIR_EXISTS_ERROR = 4
 DEFAULT_VERBOSE = False
 PROGRAM_NAME = "ContigDepthCompare"
+
+
+try:
+    PROGRAM_VERSION = pkg_resources.require(PROGRAM_NAME)[0].version
+except pkg_resources.DistributionNotFound:
+    PROGRAM_VERSION = "undefined_version"
+
+
 
 
 def exit_with_error(message, exit_status):
