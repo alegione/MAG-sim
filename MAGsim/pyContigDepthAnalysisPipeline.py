@@ -425,8 +425,10 @@ def main():
             binning(megahit_out, file, binning_folder)
 
     for file in os.listdir(binning_folder):
-        if os.path.isfile(binning_folder + os.path.splitext(file)[0] + ".bam") == False:
-            map_minimap2(binning_folder + os.path.splitext(file)[0] + ".bam", threads, binning_folder + "/" + file, Forward, Reverse)
+        binMap_ref = binning_folder + "/" + file
+        binMap_file = binning_folder + "/" os.path.splitext(file)[0] + ".bam"
+        if os.path.isfile(binMap_file) == False:
+            map_minimap2(binMap_file, threads, binMap_ref, Forward, Reverse)
 
 #    remap_kallisto()
 
