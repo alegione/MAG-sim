@@ -19,7 +19,7 @@ setup(
     packages=['MAG-sim'],
     package_dir={'MAG-sim': 'MAG-sim'},
     entry_points={
-        'console_scripts': ['MAG-sim = MAG-sim.pyContigDepthAnalysisPipeline:main']
+        'console_scripts': ['MAGsim = MAGsim.pyContigDepthAnalysisPipeline:main']
     },
     url='https://github.com/alegione/MAG-sim',
     license='MIT',
