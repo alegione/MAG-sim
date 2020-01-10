@@ -25,6 +25,5 @@ setup(
     license='MIT',
     description=('Simulation of metagenomic assemblies'),
     long_description=(LONG_DESCRIPTION),
-    install_requires=["argparse", "os", "sys", "subprocess", "logging", "shutils",
-    "pkg_resources", "pandas", "datetime", "Bio", "numpy"],
+    install_requires=["argparse", "os", "sys", "subprocess", "logging", "shutils","pkg_resources", "pandas", "datetime", "Bio", "numpy"]
 )
