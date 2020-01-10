@@ -193,11 +193,15 @@ def generate_read_depths(genome_folder, read_length, read_depths, output_folder)
 
 def simulate_reads(genome_folder, read_depths, output_folder, read_length):
     print("Inside simulating reads")
+    output_folder = output_folder + "/SimReads"
+    if not os.path.exists(output_folder):
+        print("Making SimReads output directory")
+        os.mkdir(output_folder)
     df = pandas.read_csv(read_depths,
                         sep = "\t", index_col = 0)
     for fasta_file in os.listdir(genome_folder):
-        Sim_reads_1 = os.getcwd() + "/SimReads/" + os.path.splitext(fasta_file)[0] + "_R1.fastq"
-        Sim_reads_2 = os.getcwd() + "/SimReads/" + os.path.splitext(fasta_file)[0] + "_R2.fastq"
+        Sim_reads_1 = output_folder + "/" + os.path.splitext(fasta_file)[0] + "_R1.fastq"
+        Sim_reads_2 = output_folder + "/" + os.path.splitext(fasta_file)[0] + "_R2.fastq"
         if os.path.isfile(Sim_reads_1) == False or os.path.isfile(Sim_reads_2) == False:
             print(fasta_file)
             df.loc[df.Filename == fasta_file, 'ReadsRequired']
@@ -215,8 +219,8 @@ def simulate_reads(genome_folder, read_depths, output_folder, read_length):
                             " -2 " + \
                             str(read_length) +\
                             " -S 999 " + \
-                            os.getcwd() + \
-                            "/genomes/" + \
+                            genome_folder \
+                            "/" + \
                             fasta_file + \
                             " " + \
                             Sim_reads_1 + \
@@ -231,8 +235,8 @@ def simulate_reads(genome_folder, read_depths, output_folder, read_length):
                             " -2 " + \
                             str(read_length) +\
                             " -S 999 " + \
-                            os.getcwd() + \
-                            "/genomes/" + \
+                            genome_folder + \
+                            "/" + \
                             fasta_file + \
                             " " + \
                             Sim_reads_1 + \
@@ -350,6 +354,10 @@ def main():
     read_depths = options.outdir + "/" + options.prefix + ".read_depths.tsv"
     output_folder = options.outdir
     threads = 8
+    
+    if not os.path.exists(output_folder):
+        print("Making output directory")
+        os.mkdir(output_folder)
 
     print("Generating read_depths")
     if os.path.isfile(read_depths) == False:
