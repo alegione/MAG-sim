@@ -257,35 +257,37 @@ def merge_reads(output_folder, input_R1, input_R2):
     return None
 
 def meta_assembly(output_folder, threads, input_R1, input_R2):
-    subprocess.run(["megahit --num-cpu-threads",
+    subprocess.run(["megahit --num-cpu-threads ",
                     str(threads),
-                    "-1", input_R1, "-2", input_R2,
-                    "--out-dir megahit --out-prefix MetaAssemble --tmp-dir /tmp"],
+                    " -1 ", input_R1, " -2 ", input_R2,
+                    " --out-dir megahit --out-prefix MetaAssemble --tmp-dir /tmp "],
             shell = True)
 
     return None
 
 def map_minimap2(output_folder, output_file, threads, input_ref, input_R1, input_R2):
     print("Generating " + output_file)
-    print("minimap2 -t" + \
+    print("minimap2 -t " + \
                     str(threads) + \
-                    "-a -x sr" + \
+                    " -a -x sr " + \
                     input_ref + \
+                    " " + \
                     input_R1 + \
+                    " " + \
                     input_R2 + \
-                    "| samtools view -@" + \
+                    " | samtools view -@ " + \
                     str(threads) + \
-                    "-F 4 -h -u -T" + \
+                    " -F 4 -h -u -T " + \
                     input_ref + \
-                    "- | samtools sort -@" + \
+                    " - | samtools sort -@ " + \
                     str(threads) + \
-                    "-T /tmp/temp.minimap2.bam -o" + \
+                    " -T /tmp/temp.minimap2.bam -o " + \
                     output_file + \
-                    "-")
+                    " - ")
     subprocess.run("minimap2 -t " + \
                     str(threads) + \
                     " -a -x sr " + \
-                    " " + input_ref + \
+                    input_ref + \
                     " " + input_R1 + \
                     " " + input_R2 + \
                     " | samtools view -@ " + \
@@ -300,11 +302,11 @@ def map_minimap2(output_folder, output_file, threads, input_ref, input_R1, input
 
 def map_kallisto(output_folder, output_file, threads, input_ref, input_R1, input_R2):
     index = os.path.splitext(output_file)[0] + ".index"
-    subprocess.run(["kallisto index --index", index, input_ref], shell = True)
-    subprocess.run(["kallisto quant --threads=" + str(threads),
-                    "--index", index, "--output-dir kallisto_map --pseudobam",
-                    input_R1, input_R2], shell = True)
-    subprocess.run(["samtools sort -@", str(threads) + "kallisto_map/pseudoalignments.bam >",
+    subprocess.run(["kallisto index --index ", index, " ", input_ref], shell = True)
+    subprocess.run(["kallisto quant --threads= " + str(threads),
+                    " --index ", index, " --output-dir kallisto_map --pseudobam ",
+                    input_R1, " ", input_R2], shell = True)
+    subprocess.run(["samtools sort -@ ", str(threads), " kallisto_map/pseudoalignments.bam > ",
                     output_file], shell = True)
     return None
 
