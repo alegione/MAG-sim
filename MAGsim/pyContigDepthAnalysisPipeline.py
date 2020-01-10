@@ -262,9 +262,8 @@ def meta_assembly(output_folder, threads, input_R1, input_R2):
 
     return None
 
-def map_minimap2(output_folder, output_file, threads, input_ref, input_R1, input_R2):
+def map_minimap2(output_file, threads, input_ref, input_R1, input_R2):
     print("Generating " + output_file)
-    output_folder
     print("minimap2 -t " + \
                     str(threads) + \
                     " -a -x sr " + \
@@ -300,31 +299,32 @@ def map_minimap2(output_folder, output_file, threads, input_ref, input_R1, input
 
 def map_kallisto(output_folder, output_file, threads, input_ref, input_R1, input_R2):
     index = os.path.splitext(output_file)[0] + ".index"
-    subprocess.run("kallisto index --index " + index + " " + input_ref, shell = True)
-    subprocess.run("kallisto quant --threads= " + str(threads) + " --index " + index + " --output-dir kallisto_map --pseudobam " + input_R1 + " " + input_R2, shell = True)
-    subprocess.run("samtools sort -@ " + str(threads) + " kallisto_map/pseudoalignments.bam > " + output_file, shell = True)
+    kallisto_folder = output_folder + "/kallisto_map"
+    subprocess.run("kallisto index --index " + index + " " + input_ref,
+                   shell = True)
+    subprocess.run("kallisto quant --threads=" + str(threads) + " --index " + index + " --output-dir " kallisto_folder + " --pseudobam " + input_R1 + " " + input_R2,
+                   shell = True)
+    subprocess.run("samtools sort -@ " + str(threads) + " " + kallisto_folder + "/pseudoalignments.bam > " + output_file,
+                   shell = True)
     return None
 
-def map_BWA(output_folder, output_file, threads, input_ref, input_R1, input_R2):
-    subprocess.run(["bwa index", input_ref],
+def map_BWA(output_file, threads, input_ref, input_R1, input_R2):
+    subprocess.run("bwa index " + input_ref,
                     shell = True)
-    subprocess.run(["bwa mem -t", str(threads), input_ref, input_R1, input_R2,
-                    "| samtools view -@ ", str(threads), "-F 4 -h -u -T",
-                    input_ref, "- | samtools sort -@ ", str(threads),
-                    "-T /tmp/temp.bwa.bam -o", output_file, "-"],
+    subprocess.run("bwa mem -t " + str(threads) + " " + input_ref + " " + input_R1 + " " + input_R2 + " | samtools view -@ " + str(threads) + " -F 4 -h -u -T " input_ref " - | samtools sort -@ " + str(threads) + " -T /tmp/temp.bwa.bam -o " + output_file + " -",
                  shell = True)
     return None
 
-def contig_coverage(input_bam, output_file, output_folder):
-    if os.path.isfile("depth/" + output_file) == False:
+def contig_coverage(input_bam, output_file, output_folder, aln_folder):
+    if os.path.isfile(output_folder + "/" + output_file) == False:
         print("generating " + output_file)
         subprocess.run("jgi_summarize_bam_contig_depths --minContigLength 2000 \
-            --outputDepth depth/" + output_file + " alignments/" + input_bam + " 2> /dev/null",
+            --outputDepth " output_folder + "/" + output_file + " " +  aln_folder + "/" + input_bam + " 2> /dev/null",
             shell = True)
     return None
 
-def binning(input_contigs, input_depth):
-    output_file = "binning/" + os.path.splitext(input_depth)[0]
+def binning(input_contigs, input_depth, binning_folder):
+    output_file = binning_folder + "/" + os.path.splitext(input_depth)[0]
     print(output_file)
     print("metabat2 --minContig 2000 --inFile " + input_contigs + \
                     " --adbFile " + input_depth + "--outFile " + output_file)
@@ -395,13 +395,13 @@ def main():
     bwa_out = aln_folder + "/MetaAssemble.bwa.bam"
     
     if os.path.isfile(minimap2_out) == False:
-        map_minimap2(aln_folder, minimap2_out, threads, megahit_out, Forward, Reverse)
+        map_minimap2(minimap2_out, threads, megahit_out, Forward, Reverse)
 
     if os.path.isfile(kallisto_out) == False:
         map_kallisto(aln_folder, kallisto_out, threads, megahit_out, Forward, Reverse)
 
     if os.path.isfile(bwa_out) == False:
-        map_BWA(aln_folder, bwa_out, threads, megahit_out, Forward, Reverse)
+        map_BWA(bwa_out, threads, megahit_out, Forward, Reverse)
 
     depth_folder = output_folder + "/depth"
     if not os.path.exists(depth_folder):
@@ -412,7 +412,7 @@ def main():
             output_file = os.path.splitext(file)[0] + ".txt"
             if os.path.isfile(depth_folder + "/" + output_file) == False:
                 print("contig coverage of " + file)
-                contig_coverage(file, output_file, output_folder)
+                contig_coverage(file, output_file, output_folder, aln_folder)
                 
                 
     binning_folder = output_folder + "/binning"
@@ -422,7 +422,7 @@ def main():
         
     for file in os.listdir(depth_folder):
         if os.path.isfile(binning_folder + "/" + os.path.splitext(file)[0] + ".1.fa") == False:
-            binning(megahit_out, file)
+            binning(megahit_out, file, binning_folder)
 
     for file in os.listdir(binning_folder):
         if os.path.isfile(binning_folder + os.path.splitext(file)[0] + ".bam") == False:
