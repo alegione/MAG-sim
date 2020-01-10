@@ -302,7 +302,7 @@ def map_kallisto(output_folder, output_file, threads, input_ref, input_R1, input
     kallisto_folder = output_folder + "/kallisto_map"
     subprocess.run("kallisto index --index " + index + " " + input_ref,
                    shell = True)
-    subprocess.run("kallisto quant --threads=" + str(threads) + " --index " + index + " --output-dir " kallisto_folder + " --pseudobam " + input_R1 + " " + input_R2,
+    subprocess.run("kallisto quant --threads=" + str(threads) + " --index " + index + " --output-dir " + kallisto_folder  + " --pseudobam " + input_R1 + " " + input_R2,
                    shell = True)
     subprocess.run("samtools sort -@ " + str(threads) + " " + kallisto_folder + "/pseudoalignments.bam > " + output_file,
                    shell = True)
