@@ -247,14 +247,12 @@ def simulate_reads(genome_folder, read_depths, output_folder, read_length):
 
     return None
 
-def merge_reads(output_folder):
+def merge_reads(output_folder, input_R1, input_R2):
     Simfolder = output_folder + "/SimReads/"
-    Merged_R1 = output_folder + "/Merged_R1.fastq"
-    Merged_R2 = output_folder + "/Merged_R2.fastq"
     print("Merging forward reads")
-    subprocess.run("cat " + Simfolder + "*R1* >> " + Merged_R1, shell = True)
+    subprocess.run("cat " + Simfolder + "*R1* >> " + input_R1, shell = True)
     print("Merging reverse reads")
-    subprocess.run("cat " + Simfolder + "*R2* >> " + Merged_R2, shell = True)
+    subprocess.run("cat " + Simfolder + "*R2* >> " + input_R2, shell = True)
 
     return None
 
@@ -365,9 +363,15 @@ def main():
 
     print("Simulating reads")
     simulate_reads(genome_folder, read_depths, output_folder, read_length)
-    if os.path.isfile("Merged_R1.fastq") == False or  os.path.isfile("Merged_R2.fastq") == False:
-        merge_reads(output_folder)
+    
+    Forward = output_folder + "/Merged_R1.fastq"
+    Reverse = output_folder + "/Merged_R2.fastq"
+    
+    if os.path.isfile(Forward) == False or  os.path.isfile(Reverse) == False:
+        merge_reads(output_folder, Forward, Reverse)
 
+    
+        
     print("going to try assembly")
     if os.path.isdir(output_folder + "/megahit") == True:
         print("detected megahit folder already")
@@ -376,19 +380,19 @@ def main():
         else:
             print("couldn't detect contig file, probably failed assembly. Removing folder and start again")
             shutil.rmtree(output_folder + "/megahit")
-            meta_assembly(output_folder, threads)
+            meta_assembly(output_folder, threads, Forward, Reverse)
     else:
-        meta_assembly(output_folder, threads)
+        meta_assembly(output_folder, threads, Forward, Reverse)
 
 
     if os.path.isfile("alignments/MetaAssemble.minimap2.bam") == False:
-        map_minimap2(output_folder, "alignments/MetaAssemble.minimap2.bam", threads, "megahit/MetaAssemble.contigs.fa", "Merged_R1.fastq", "Merged_R2.fastq")
+        map_minimap2(output_folder, "alignments/MetaAssemble.minimap2.bam", threads, "megahit/MetaAssemble.contigs.fa", Forward, Reverse)
 
     if os.path.isfile("alignments/MetaAssemble.kallisto.bam") == False:
-        map_kallisto(output_folder, "alignments/MetaAssemble.kallisto.bam", threads, "megahit/MetaAssemble.contigs.fa", "Merged_R1.fastq", "Merged_R2.fastq")
+        map_kallisto(output_folder, "alignments/MetaAssemble.kallisto.bam", threads, "megahit/MetaAssemble.contigs.fa", Forward, Reverse)
 
     if os.path.isfile("alignments/MetaAssemble.bwa.bam") == False:
-        map_BWA(output_folder, "alignments/MetaAssemble.bwa.bam", threads, "megahit/MetaAssemble.contigs.fa", "Merged_R1.fastq", "Merged_R2.fastq")
+        map_BWA(output_folder, "alignments/MetaAssemble.bwa.bam", threads, "megahit/MetaAssemble.contigs.fa", Forward, Reverse)
 
     for file in os.listdir("alignments"):
         if file.lower().endswith(".bam"):
