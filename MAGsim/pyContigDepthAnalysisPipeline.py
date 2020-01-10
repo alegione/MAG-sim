@@ -347,7 +347,7 @@ def main():
 
     genome_folder = options.input
     read_length = options.readlength
-    read_depths = options.outdir + "/" + options.prefix + '.' + read_depths.tsv"
+    read_depths = options.outdir + "/" + options.prefix + ".read_depths.tsv"
     output_folder = options.outdir
     threads = 8
 
