@@ -208,6 +208,22 @@ def simulate_reads(genome_folder, read_depths, output_folder, read_length):
             print("and")
             print(Sim_reads_2)
 
+            print("wgsim -e 0.001 -N " + \
+                            str(read_number) + \
+                            " -1 " + \
+                            str(read_length) + \
+                            " -2 " + \
+                            str(read_length) +\
+                            " -S 999 " + \
+                            os.getcwd() + \
+                            "/genomes/" + \
+                            fasta_file + \
+                            " " + \
+                            Sim_reads_1 + \
+                            " " + \
+                            Sim_reads_2 + \
+                            " 1> /dev/null")
+            
             subprocess.run("wgsim -e 0.001 -N " + \
                             str(read_number) + \
                             " -1 " + \
