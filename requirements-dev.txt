@@ -1,6 +1,6 @@
 # Dependencies, with versions explicitly declared for development and testing
 pandas==0.25.1
-numpy==1.17.2
+numpy==1.22.0
 Bio==1.74
 
 
